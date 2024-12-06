@@ -22,7 +22,7 @@ st.write(
 )
 
 
-product_categories = df1['Product'].unique()
+product_categories = df1['Product'].unique().tolist()
 st.write(df1)
 
 st.write(product_categories)
