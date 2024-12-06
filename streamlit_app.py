@@ -9,7 +9,7 @@ url = st.text_input("Enter the GitHub raw URL of the CSV file:",
 # Load the dataset if a valid URL is provided
 if url:
     try:
-        df = pd.read_csv(url)
+        df1 = pd.read_csv(url)
         st.write("CSV Data:")
         st.write(df)
     except Exception as e:
@@ -24,4 +24,4 @@ st.write(
 st.write(product_categories)
 
 product_categories = df1['Product'].unique()
-st.write(df)
+st.write(df1)
