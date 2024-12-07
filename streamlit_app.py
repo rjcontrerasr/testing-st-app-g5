@@ -33,6 +33,27 @@ client_complaint = """ somebody stole money from my saving account
 assigned_issue = """ Problem with fraud alerts or security freezes00
 """
 
+from openai import OpenAI
+import os
+import pandas as pd
+from datetime import date
+from langchain import hub
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain_community.utilities.jira import JiraAPIWrapper
+from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
+
+# Load API Key for OpenAI
+my_secret_key = userdata.get('MyOpenAIKey')
+os.environ["OPENAI_API_KEY"] = my_secret_key
+client = OpenAI()
+
+
+
+
+
+
+
 import os
 from jira_toolkit import JiraAPIWrapper, JiraToolkit
 from langchain.chat_models import ChatOpenAI
