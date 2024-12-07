@@ -9,18 +9,66 @@ from langchain import hub
 
 # Streamlit setup
 st.title("Jira Task Creator")
-st.sidebar.header("Jira Credentials")
+#st.sidebar.header("Jira Credentials")
 
-# Sidebar inputs
-jira_token = st.sidebar.text_input("JIRA API Token", type="password")
-jira_username = st.sidebar.text_input("JIRA Username")
-jira_instance_url = st.sidebar.text_input("JIRA Instance URL", "https://is883-genai-r.atlassian.net/")
+# Initialize Jira credentials
+os.environ["JIRA_API_TOKEN"] = userdata.get('JIRA_API_TOKEN')
+os.environ["JIRA_USERNAME"] = "rich@bu.edu"
+os.environ["JIRA_INSTANCE_URL"] = "https://is883-genai-r.atlassian.net/"
+os.environ["JIRA_CLOUD"] = "True"
+#os.environ["JIRA_PROJECT_KEY"] = "LLMTS"
 
-# OpenAI Key
+client_complaint = """ somebody stole money from my saving account
+"""
+assigned_issue = """ Problem with fraud alerts or security freezes JIRATT1
+"""
+
+
+question = (
+    f"Create a task in my project with the key FST. Take into account tha the Key of this project is FST "
+    f"The task's type is 'Task', assignee to rich@bu.edu,"
+    f"The summary is '{assigned_issue}'."
+    #f"with the priority '{priority}' and the description '{client_complaint}'. "
+    f"Always assign 'Highest' priority if the '{assigned_issue}' is related to fraudulent activities. Fraudulent activities include terms or contexts like unauthorized access, theft, phishing, or stolen accounts. Be strict in interpreting fraud-related issues."
+    f"with the priority 'High' for other type of issues"
+    f"with the description '{client_complaint}'. "
+    #f"with a status  'TO DO'. "
+)
+
+#agent_executor.invoke({"input": question}, handle_parsing_errors=True)
+
+# Execute the agent to create the Jira task
+
+# Initialize Jira API Wrapper and Toolkit
+jira = JiraAPIWrapper()
+toolkit = JiraToolkit.from_jira_api_wrapper(jira)
+
+# Fix tool names and descriptions in the toolkit
+for idx, tool in enumerate(toolkit.tools):
+    toolkit.tools[idx].name = toolkit.tools[idx].name.replace(" ", "_")
+    if "create_issue" in toolkit.tools[idx].name:
+        toolkit.tools[idx].description += " Ensure to specify the project ID."
+
+# Add tools for the agent
+tools = toolkit.get_tools()
+
+# LLM Setup for LangChain
+chat = ChatOpenAI(openai_api_key=my_secret_key, model="gpt-4o-mini")
+
+# Prepare the LangChain ReAct Agent
+prompt = hub.pull("hwchase17/react")
+agent = create_react_agent(chat, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+# Create a question prompt for the Jira task
+# priority = "Highest" if "fraud" in client_complaint.lower() else "High"
+
+
 try:
-    my_secret_key = st.secrets["OPENAI_API_KEY"]
-except Exception:
-    st.error("Missing OpenAI API Key in Streamlit secrets.")
+    result = agent_executor.invoke({"input": question})
+    print("Agent Output:", result)
+except Exception as e:
+    print(f"Error during Jira task creation: {e}")
 
 # Load CSV
 url = st.text_input("Enter the GitHub raw URL of the CSV file:", "https://raw.githubusercontent.com/JeanJMH/Financial_Classification/main/Classification_data.csv")
@@ -29,41 +77,4 @@ try:
     st.write(df1)
 except Exception as e:
     st.error(f"Failed to load CSV: {e}")
-
-# Task details
-st.header("Task Details")
-project_key = st.text_input("Project Key", "FST")
-assigned_issue = st.text_input("Task Summary")
-client_complaint = st.text_area("Task Description")
-assignee = st.text_input("Assignee Email", jira_username)
-
-# Fraud detection
-fraud_keywords = ["unauthorized access", "theft", "phishing", "stolen accounts"]
-priority = "Highest" if any(keyword in client_complaint.lower() for keyword in fraud_keywords) else "High"
-
-# Create Jira Task
-if st.button("Create Jira Task"):
-    if not jira_token or not jira_username or not jira_instance_url:
-        st.error("Please provide valid Jira credentials.")
-    else:
-        try:
-            jira = JiraAPIWrapper()
-            toolkit = JiraToolkit.from_jira_api_wrapper(jira)
-            tools = toolkit.get_tools()
-            chat = ChatOpenAI(openai_api_key=my_secret_key, model="gpt-4o-mini")
-            prompt = hub.pull("hwchase17/react")
-            agent = create_react_agent(chat, tools, prompt)
-            agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-            question = (
-                f"Create a task in my project with the key {project_key}. "
-                f"The task's type is 'Task', assigned to {assignee}. "
-                f"The summary is '{assigned_issue}'. "
-                f"The description is '{client_complaint}'. "
-                f"Assign priority as '{priority}'."
-            )
-            result = agent_executor.invoke({"input": question})
-            st.success("Jira Task Created Successfully!")
-            st.json(result)
-        except Exception as e:
-            st.error(f"Error creating Jira Task: {e}")
 
