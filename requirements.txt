@@ -1,7 +1,2 @@
 streamlit
 pandas
-langchain
-jira-toolkit
-openai
-langchain-openai
-langchain-community
