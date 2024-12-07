@@ -5,7 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_community.utilities.jira import JiraAPIWrapper
 from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
-from langchain.prompts import hub
+from langchain import hub
 
 # Streamlit setup
 st.title("Jira Task Creator")
