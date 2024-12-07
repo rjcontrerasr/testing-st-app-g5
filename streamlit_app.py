@@ -12,7 +12,7 @@ st.title("Jira Task Creator")
 #st.sidebar.header("Jira Credentials")
 
 # Initialize Jira credentials
-os.environ["JIRA_API_TOKEN"] = userdata.get('JIRA_API_TOKEN')
+os.environ["JIRA_API_TOKEN"] = st.secrets['JIRA_API_TOKEN']
 os.environ["JIRA_USERNAME"] = "rich@bu.edu"
 os.environ["JIRA_INSTANCE_URL"] = "https://is883-genai-r.atlassian.net/"
 os.environ["JIRA_CLOUD"] = "True"
