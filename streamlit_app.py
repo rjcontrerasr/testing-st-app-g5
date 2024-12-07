@@ -20,7 +20,6 @@ os.environ["JIRA_API_TOKEN"] = st.secrets['JIRA_API_TOKEN']
 os.environ["JIRA_USERNAME"] = "rich@bu.edu"
 os.environ["JIRA_INSTANCE_URL"] = "https://is883-genai-r.atlassian.net/"
 os.environ["JIRA_CLOUD"] = "True"
-#os.environ["JIRA_PROJECT_KEY"] = "LLMTS"
 
 client_complaint = """ somebody stole money from my saving account
 """
@@ -29,17 +28,13 @@ assigned_issue = """ Problem with fraud alerts or security freezes JIRATT1
 
 
 question = (
-    f"Create a task in my project with the key FST. Take into account tha the Key of this project is FST "
+    f"Create a single task in my project with the key FST. Take into account tha the Key of this project is FST "
     f"The task's type is 'Task', assignee to rich@bu.edu,"
     f"The summary is '{assigned_issue}'."
-    #f"with the priority '{priority}' and the description '{client_complaint}'. "
     f"Always assign 'Highest' priority if the '{assigned_issue}' is related to fraudulent activities. Fraudulent activities include terms or contexts like unauthorized access, theft, phishing, or stolen accounts. Be strict in interpreting fraud-related issues."
     f"with the priority 'High' for other type of issues"
     f"with the description '{client_complaint}'. "
-    #f"with a status  'TO DO'. "
 )
-
-#agent_executor.invoke({"input": question}, handle_parsing_errors=True)
 
 # Execute the agent to create the Jira task
 
@@ -74,11 +69,8 @@ try:
 except Exception as e:
     print(f"Error during Jira task creation: {e}")
 
-# Load CSV
-url = st.text_input("Enter the GitHub raw URL of the CSV file:", "https://raw.githubusercontent.com/JeanJMH/Financial_Classification/main/Classification_data.csv")
-try:
-    df1 = pd.read_csv(url)
-    st.write(df1)
-except Exception as e:
-    st.error(f"Failed to load CSV: {e}")
+
+st.write("Executing task creation...")
+result = agent_executor.invoke({"input": question})
+st.write("Task creation result:", result)
 
