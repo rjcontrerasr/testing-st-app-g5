@@ -7,6 +7,10 @@ from langchain_community.utilities.jira import JiraAPIWrapper
 from langchain_community.agent_toolkits.jira.toolkit import JiraToolkit
 from langchain import hub
 
+
+my_secret_key = st.secrets["MyOpenAIKey"]
+os.environ["openai_api_key"] = my_secret_key
+
 # Streamlit setup
 st.title("Jira Task Creator")
 #st.sidebar.header("Jira Credentials")
