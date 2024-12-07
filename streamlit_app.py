@@ -23,7 +23,7 @@ os.environ["JIRA_CLOUD"] = "True"
 
 client_complaint = """ somebody stole money from my saving account
 """
-assigned_issue = """ Problem with fraud alerts or security freezes JIRATT1
+assigned_issue = """ Problem with fraud alerts or security freezes JIRATT2
 """
 
 
@@ -35,6 +35,7 @@ question = (
     f"with the priority 'High' for other type of issues"
     f"with the description '{client_complaint}'. "
 )
+
 
 # Execute the agent to create the Jira task
 
@@ -69,8 +70,11 @@ try:
 except Exception as e:
     print(f"Error during Jira task creation: {e}")
 
-
-st.write("Executing task creation...")
-result = agent_executor.invoke({"input": question})
-st.write("Task creation result:", result)
+# Load CSV
+url = st.text_input("Enter the GitHub raw URL of the CSV file:", "https://raw.githubusercontent.com/JeanJMH/Financial_Classification/main/Classification_data.csv")
+try:
+    df1 = pd.read_csv(url)
+    st.write(df1)
+except Exception as e:
+    st.error(f"Failed to load CSV: {e}")
 
